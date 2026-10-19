@@ -71,7 +71,7 @@ sparksG.innerHTML = Array.from({length:14}, () => `<circle r="3" fill="#F2E1B8" 
 const sparks = $$("#sparks circle");
 const threads = $(".threads", pf);
 
-/* ---- İmplant sahnesi: kaydırma ilerlemesi ---- */
+/* ---- İmplant sahnesi: zamanlı otomatik ilerleme ---- */
 const imp = $("#implant"), steps = $$("#vsteps li"), counter = $("#counter"), rail = $("#vsteps");
 const halo = $("#halo"), collarA = $("#collarA"), collarC = $("#collarC"), target = $("#target"); const badges = $$(".badge", imp);
 const easeIO = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
@@ -110,7 +110,7 @@ function renderImplant(p){
     [pf, pa, pc].forEach(g => g.removeAttribute("filter"));
     if (hot && p < .985) hot.setAttribute("filter", "url(#fGlow)");
   }
-  // numaralı işaretler: o an hareket eden parça vurgulanır
+  
   const active = p < .20 ? 0 : p < .50 ? 1 : p < .74 ? 2 : 3;
   badges.forEach(b => b.classList.toggle("on", Number(b.dataset.i) === active));
   const fade = p > .96 ? 0 : 1;
@@ -121,17 +121,18 @@ if (reduced) {
   renderImplant(1);
   steps.forEach(li => li.classList.add("active"));
 } else {
-  let ticking = false;
-  const update = () => {
-    ticking = false;
-    const r = imp.getBoundingClientRect();
-    const total = imp.offsetHeight - window.innerHeight;
-    renderImplant(cl(-r.top / Math.max(1, total)));
+  let startTime;
+  const duration = 10000; 
+  
+  const update = (time) => {
+    if (!startTime) startTime = time;
+    const elapsed = time - startTime;
+    const p = (elapsed % duration) / duration; 
+    
+    renderImplant(p);
+    requestAnimationFrame(update);
   };
-  const req = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
-  window.addEventListener("scroll", req, { passive:true });
-  window.addEventListener("resize", req);
-  update();
+  requestAnimationFrame(update);
 }
 
 /* ---- Tedaviye dokununca formda seç ---- */
@@ -207,7 +208,10 @@ function renderSlots(){
   });
 }
 
-$("#quads").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; state.quad = b.dataset.v; $$("#quads .chip").forEach(c => c.setAttribute("aria-pressed", String(c === b)));
+$("#quads").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  state.quad = b.dataset.v;
+  $$("#quads .chip").forEach(c => c.setAttribute("aria-pressed", String(c === b)));
 });
 
 function setErr(id, msg, field){ $("#err-" + id).textContent = msg; if (field) field.setAttribute("aria-invalid", msg ? "true" : "false"); }
@@ -265,14 +269,16 @@ $("#form").addEventListener("submit", async e => {
     ? "Klinik talebinizi inceleyip saati telefonla veya mesajla onaylayacak. Dilerseniz aşağıdan WhatsApp ile de iletebilirsiniz."
     : "Bilgileriniz hazır. Talebin kliniğe ulaşması için aşağıdaki düğmeyle WhatsApp'tan gönderin. Klinik saati onaylayacaktır.";
   const rows = [["Tarih", longDate(data.date)], ["Saat", data.time], ["Neden", data.reason], ["Bölge", data.area], ["Ad soyad", data.name], ["Telefon", data.phone]];
-  $("#summary").innerHTML = rows.map(() => "<div><dt></dt><dd></dd></div>").join(""); $$("#summary div").forEach((row, i) => { $("dt", row).textContent = rows[i][0]; $("dd", row).textContent = rows[i][1]; });
+  $("#summary").innerHTML = rows.map(() => "<div><dt></dt><dd></dd></div>").join("");
+  $$("#summary div").forEach((row, i) => { $("dt", row).textContent = rows[i][0]; $("dd", row).textContent = rows[i][1]; });
 
   $("#form").hidden = true; $("#done").hidden = false;
   $("#randevu").scrollIntoView({ behavior:"smooth", block:"start" });
 });
 
 $("#again").addEventListener("click", () => {
-  $("#form").reset(); state.date = null; state.time = null; state.quad = "Belirtmek istemiyorum"; $$("#quads .chip").forEach((c, i) => c.setAttribute("aria-pressed", String(i === 0)));
+  $("#form").reset(); state.date = null; state.time = null; state.quad = "Belirtmek istemiyorum";
+  $$("#quads .chip").forEach((c, i) => c.setAttribute("aria-pressed", String(i === 0)));
   renderDays(); renderSlots();
   $("#done").hidden = true; $("#form").hidden = false;
 });

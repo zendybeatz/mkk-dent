@@ -139,11 +139,11 @@ h1,h2,h3{font-family:var(--serif);font-weight:300;line-height:1.02;margin:0;text
 @media (prefers-reduced-motion:reduce){.marquee-track{animation:none}}
 
 /* İmplant sahnesi */
-.implant{position:relative;height:520vh;background:linear-gradient(180deg,var(--night) 0%,var(--night-2) 18%,var(--night-2) 82%,var(--night) 100%)}
+.implant{position:relative;background:linear-gradient(180deg,var(--night) 0%,var(--night-2) 18%,var(--night-2) 82%,var(--night) 100%)}
 .stage{
-  position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;
+  position:relative;overflow:hidden;
   display:grid;grid-template-columns:.8fr 1.2fr;align-items:center;gap:clamp(20px,4vw,72px);
-  padding-top:84px;padding-bottom:28px;
+  padding-block:84px 60px;
 }
 .stage::before{
   content:"";position:absolute;inset:0;pointer-events:none;
@@ -151,9 +151,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:300;line-height:1.02;margin:0;text
 }
 .stage-copy{position:relative;display:grid;gap:26px;min-width:0;width:100%;max-width:calc(560px + max(22px, (100vw - 1240px) / 2 + 22px));padding-left:max(22px, calc((100vw - 1240px) / 2 + 22px), env(safe-area-inset-left, 0px))}
 .stage-copy h2{font-size:clamp(36px,4.4vw,64px)}
-.hint{display:flex;align-items:center;gap:12px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
-.hint i{display:block;width:1px;height:28px;background:var(--gold);transform-origin:top;animation:hintline 2s ease-in-out infinite}
-@keyframes hintline{0%{transform:scaleY(0)}60%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+.hint{display:none !important;}
 .vsteps{list-style:none;margin:0;padding:0 0 0 30px;position:relative;display:grid;gap:6px}
 .vsteps::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:1px;background:var(--gold-line)}
 .vsteps::after{content:"";position:absolute;left:0;top:6px;width:1px;height:calc((100% - 12px) * var(--p, 0));background:var(--gold);box-shadow:0 0 12px rgba(217,188,130,.8)}
